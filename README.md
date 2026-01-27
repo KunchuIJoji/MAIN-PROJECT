@@ -41,14 +41,16 @@ Predictive Modeling: Developed and validated Scikit-learn models to automate pla
 System Integration: Developed a decoupled architecture where the React frontend communicates with the Flask-based ML engine.
 
 
-  STUDENT DETAILS:
-  Student Name: Kunchu Ittiyavara Joji
-  Mobile No: +917306077726
-  E-Mail ID: kunchu.inmca2126@saintgits.org
+STUDENT DETAILS
+
+Student Name: Kunchu Ittiyavara Joji
+Mobile No: +917306077726
+E-Mail ID: kunchu.inmca2126@saintgits.org
 
 
-  PROJECT GUIDE DETAILS:
-  Guide Name: Ms Avani S
-  Designation: Asst Professor
-  Mobile No: +917306199403
-  E-Mail ID: avani.s@saintgits.org
+PROJECT GUIDE DETAILS
+
+Guide Name: Ms Avani S
+Designation: Asst Professor
+Mobile No: +917306199403
+E-Mail ID: avani.s@saintgits.org
