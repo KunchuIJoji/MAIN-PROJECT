@@ -43,14 +43,14 @@ System Integration: Developed a decoupled architecture where the React frontend 
 
 STUDENT DETAILS
 
-Student Name- Kunchu Ittiyavara Joji
-Mobile No- +917306077726
-E-Mail ID- kunchu.inmca2126@saintgits.org
+        Student Name: Kunchu Ittiyavara Joji
+        Mobile No: +917306077726
+        E-Mail ID: kunchu.inmca2126@saintgits.org
 
 
 PROJECT GUIDE DETAILS
 
-Guide Name- Ms Avani S
-Designation- Asst Professor
-Mobile No- +917306199403
-E-Mail ID- avani.s@saintgits.org
+        Guide Name: Ms Avani S
+        Designation: Asst Professor
+        Mobile No: +917306199403
+        E-Mail ID: avani.s@saintgits.org
