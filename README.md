@@ -30,7 +30,6 @@ Machine Learning: Scikit-learn (Classification and Regression models).
 
 Data Analysis: Pandas, NumPy, Matplotlib, and Seaborn for Exploratory Data Analysis (EDA).
 
-Deployment: Containerized with Docker and deployed on Red Hat OpenShift.
 
 📊 Methodology
 
