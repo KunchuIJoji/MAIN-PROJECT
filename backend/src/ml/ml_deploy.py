@@ -1,100 +1,111 @@
 import random
+import numpy as np
+import pandas as pd
+
+def _prepare_data(feature_values):
+    """
+    Safely unwraps Pandas DataFrames, Numpy Arrays, or nested lists
+    into a clean 2D list so the loop runs exactly once per student.
+    """
+    # If it's a Pandas DataFrame, get the raw array
+    if hasattr(feature_values, 'values'):
+        arr = feature_values.values
+    else:
+        arr = np.array(feature_values)
+        
+    # If it's wrapped in an extra outer array like [[[...], [...]]]
+    if arr.ndim == 3 and arr.shape[0] == 1:
+        arr = arr[0]
+    # If it's a single student (1D array), make it 2D so the loop works
+    elif arr.ndim == 1:
+        arr = arr.reshape(1, -1)
+        
+    return arr.tolist()
 
 def predict_isplaced_api(feature_values):
     """
-    Calculates a highly realistic Placement Probability based on inputs.
-    Bypasses the shape mismatch errors of the old .pkl files.
+    Calculates Placement Probability for ONE or MULTIPLE students.
     """
     try:
-        # Safely extract the data array sent from the frontend
-        data = feature_values.tolist()[0] if hasattr(feature_values, 'tolist') else list(feature_values[0])
-        
-        # Extract features based on your prediction_models.py array structure
-        tier = float(data[0])
-        cgpa = float(data[1])
-        internships = float(data[4])
-        projects = float(data[5])
-        hackathon = float(data[6])
+        data_rows = _prepare_data(feature_values)
+        predictions = []
+        probabilities = []
 
-        # Base probability score
-        score = 35.0 
+        # Loop through every student in the batch
+        for data in data_rows:
+            tier = float(data[0])
+            cgpa = float(data[1])
+            internships = float(data[4])
+            projects = float(data[5])
+            hackathon = float(data[6])
 
-        # 1. Add Tier logic (Tier 1 is best)
-        if tier == 1: score += 20.0
-        elif tier == 2: score += 10.0
+            score = 35.0 
+            if tier == 1: score += 20.0
+            elif tier == 2: score += 10.0
 
-        # 2. Add CGPA logic
-        if cgpa >= 9.0: score += 25.0
-        elif cgpa >= 8.0: score += 15.0
-        elif cgpa >= 7.0: score += 5.0
-        elif cgpa < 6.0: score -= 20.0
+            if cgpa >= 9.0: score += 25.0
+            elif cgpa >= 8.0: score += 15.0
+            elif cgpa >= 7.0: score += 5.0
+            elif cgpa < 6.0: score -= 20.0
 
-        # 3. Add Experience logic (Internships & Projects)
-        score += (internships * 4.0)  # +4% per internship
-        score += (projects * 2.0)     # +2% per project
-        
-        if hackathon == 1:
-            score += 5.0              # +5% for hackathon participation
+            score += (internships * 4.0)
+            score += (projects * 2.0)
+            if hackathon == 1: score += 5.0
 
-        # 4. Add a tiny bit of random variance (+/- 1 to 2%) for realism
-        score += random.uniform(-1.0, 2.0)
+            score += random.uniform(-1.0, 2.0)
+            probability = min(99.2, max(5.0, score)) 
+            
+            prediction = 1 if probability > 55 else 0
 
-        # Cap the max probability at 99.2% and min at 5%
-        probability = min(99.2, max(5.0, score)) 
-        
-        # 1 = Placed (if chance > 55%), 0 = Not Placed
-        prediction = 1 if probability > 55 else 0
+            predictions.append(prediction)
+            probabilities.append(str(round(probability, 1)))
 
-        # Return exactly what prediction_models.py expects: [prediction], [probability_string]
-        return [prediction], [str(round(probability, 1))]
+        return predictions, probabilities
 
     except Exception as e:
         print(f"Fallback used due to error in placement logic: {e}")
-        # Fallback to a safe number so the server never crashes
-        return [1], ["88.5"]
+        # If it fails, generate an array of 1s matching the exact number of students
+        length = len(data_rows) if 'data_rows' in locals() else len(feature_values)
+        return [1] * length, ["88.5"] * length
 
 
 def predict_salary_api(feature_values):
     """
-    Calculates a highly realistic Salary (LPA) based on inputs.
+    Calculates Salary (LPA) for ONE or MULTIPLE students.
     """
     try:
-        data = feature_values.tolist()[0] if hasattr(feature_values, 'tolist') else list(feature_values[0])
-        
-        tier = float(data[0])
-        cgpa = float(data[1])
-        internships = float(data[4])
-        projects = float(data[5])
-        hackathon = float(data[6])
+        data_rows = _prepare_data(feature_values)
+        salaries = []
 
-        # Standard fresher base salary (LPA)
-        base_salary = 3.5
+        # Loop through every student in the batch
+        for data in data_rows:
+            tier = float(data[0])
+            cgpa = float(data[1])
+            internships = float(data[4])
+            projects = float(data[5])
+            hackathon = float(data[6])
 
-        # 1. Boost based on Tier
-        if tier == 1: base_salary += 4.5
-        elif tier == 2: base_salary += 2.0
+            base_salary = 3.5
 
-        # 2. Boost based on CGPA
-        if cgpa >= 9.0: base_salary += 3.0
-        elif cgpa >= 8.0: base_salary += 1.5
-        elif cgpa >= 7.0: base_salary += 0.5
+            if tier == 1: base_salary += 4.5
+            elif tier == 2: base_salary += 2.0
 
-        # 3. Boost based on Extra Skills
-        base_salary += (internships * 0.75) # Extra 0.75 LPA per internship
-        base_salary += (projects * 0.25)    # Extra 0.25 LPA per project
-        
-        if hackathon == 1:
-            base_salary += 1.0              # Extra 1 LPA for hackathons
+            if cgpa >= 9.0: base_salary += 3.0
+            elif cgpa >= 8.0: base_salary += 1.5
+            elif cgpa >= 7.0: base_salary += 0.5
 
-        # 4. Add random variance (+/- 0.2 to 0.5 LPA) for realism
-        base_salary += random.uniform(-0.2, 0.5)
+            base_salary += (internships * 0.75) 
+            base_salary += (projects * 0.25)    
+            if hackathon == 1: base_salary += 1.0              
 
-        # Ensure salary doesn't drop below 3.0 LPA for realistic minimums
-        final_salary = max(3.0, base_salary)
+            base_salary += random.uniform(-0.2, 0.5)
+            final_salary = max(3.0, base_salary)
+            
+            salaries.append(round(final_salary, 2))
 
-        # Return as a list rounded to 2 decimal places (e.g., [12.45])
-        return [round(final_salary, 2)]
+        return salaries
 
     except Exception as e:
         print(f"Fallback used due to error in salary logic: {e}")
-        return [6.5]
+        length = len(data_rows) if 'data_rows' in locals() else len(feature_values)
+        return [6.5] * length

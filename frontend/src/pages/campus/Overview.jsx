@@ -26,11 +26,11 @@ export const Overview = ({ setcampusStats, setdownloadURL }) => {
     const [error, setError] = useState(null);
 
     const onUploadClick = async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+        // FIX: Removed the FormData creation here. 
+        // We pass the raw 'file' directly to the API, which wraps it for us!
         try {
             setisLoading(true);
-            const res = await PredictCampusPlacements(formData);
+            const res = await PredictCampusPlacements(file);
 
             setisLoading(false);
             setdownloadURL(backend_endpoint + res.download_url);
@@ -38,11 +38,8 @@ export const Overview = ({ setcampusStats, setdownloadURL }) => {
         } catch (err) {
             setisLoading(false);
             if (err.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
                 setError(err.response.data.message);
             } else {
-                // Something happened in setting up the request that triggered an err
                 setError(err.message || 'Something went wrong.');
             }
         }
